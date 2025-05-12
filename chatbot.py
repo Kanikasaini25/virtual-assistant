@@ -1,4 +1,3 @@
-import os
 import time
 import uuid
 from typing import Any, Dict, Generator, List, Union
@@ -40,9 +39,11 @@ csv_agent = Agent(
     structured_outputs=True,
 )
 
+
 def generate_session_id() -> str:
     """Generate a new session ID"""
     return str(uuid.uuid4())
+
 
 def count_tokens(text: str):
     try:
@@ -70,9 +71,9 @@ def get_recipe_recommendation_stream(
         token_count = count_tokens(query)
         print(f"Token count: {token_count}")
 
-        MAX_TOKENS = 8192
-        if token_count > MAX_TOKENS:
-            yield {"message": f"Error: Query exceeds {MAX_TOKENS} token limit."}
+        max_token = 8192
+        if token_count > max_token:
+            yield {"message": f"Error: Query exceeds {max_token} token limit."}
             return
 
         messages = [

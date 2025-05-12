@@ -9,5 +9,6 @@ pypdf
 pymongo
 pgvector
 psycopg2
+sqlalchemy
 
 

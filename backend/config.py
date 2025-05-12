@@ -1,7 +1,7 @@
 import os
-
 from dotenv import load_dotenv
 from pymongo import MongoClient
+
 load_dotenv()
 # MongoDB Configuration
 MONGO_URL = os.getenv("MONGODB_URL")
