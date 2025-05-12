@@ -1,0 +1,13 @@
+agno
+aiofiles>=0.8.0
+google-generativeai
+streamlit
+dotenv
+tiktoken
+openai
+pypdf
+pymongo
+pgvector
+psycopg2
+
+
