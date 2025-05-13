@@ -9,9 +9,11 @@ st.title("🍛 Indian Recipe Recommender")
 if "session_id" not in st.session_state:
     st.session_state.session_id = generate_session_id()
     st.session_state.chat_history = []
+
 # Sidebar
 with st.sidebar:
-    if st.button("Clear Conversation"):
+    st.markdown("### Options")
+    if st.button("🗑️ Clear Conversation"):
         st.session_state.session_id = generate_session_id()
         st.session_state.chat_history = []
 

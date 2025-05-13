@@ -7,7 +7,7 @@ from agno.models.openai import OpenAIChat
 from openai import OpenAI
 
 from backend.config import LLM_MODEL_ID
-from backend.db import save_conversation
+from backend.db import save_conversation,get_conversation_history
 from backend.knowledge_base import knowledge_base
 
 openai_client = OpenAI()
@@ -59,7 +59,7 @@ def count_tokens(text: str):
 
 
 def get_recipe_recommendation_stream(
-    session_id: str, query: str, chat_history: List[Dict[str, str]]
+    session_id: str, query: str, chat_history: List[Dict[str, str]] = None
 ) -> Generator[Union[str, Dict[str, Any]], None, None]:
     try:
         start = time.time()
@@ -67,6 +67,10 @@ def get_recipe_recommendation_stream(
         if not query.strip():
             yield {"message": "Error: Query cannot be empty."}
             return
+
+        # Get full conversation history from database if not provided
+        if chat_history is None:
+            chat_history = get_conversation_history(session_id)
 
         token_count = count_tokens(query)
         print(f"Token count: {token_count}")
@@ -76,23 +80,29 @@ def get_recipe_recommendation_stream(
             yield {"message": f"Error: Query exceeds {max_token} token limit."}
             return
 
+        # Build messages with full context
         messages = [
             {"role": "system", "content": csv_agent.instructions},
-            *chat_history[-2:],
+            *chat_history,
             {"role": "user", "content": query},
         ]
 
         stream = openai_client.chat.completions.create(
-            model=LLM_MODEL_ID, messages=messages, stream=True, temperature=0.3
+            model=LLM_MODEL_ID,
+            messages=messages,
+            stream=True,
+            temperature=0.3
         )
 
         assistant_response = ""
+        print(stream)
         for chunk in stream:
             content = chunk.choices[0].delta.content
             if content:
                 assistant_response += content
                 yield content
 
+        # Save to database with session tracking
         save_conversation(session_id, query, assistant_response)
         print(f"Response generated in {time.time() - start:.2f}s")
 
